@@ -24,3 +24,10 @@ nmap <silent> <leader>rf :call RunRspecCurrentLineConque()<CR>
 nmap <silent> <leader>rl :call RunLastConqueCommand()<CR>
 
 colorscheme railscasts-tweaked
+
+set wildignore=public/**,.git/,log
+let g:CommandTMaxFiles=20000
+
+set expandtab
+set shiftwidth=4
+set tabstop=4

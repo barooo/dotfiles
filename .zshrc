@@ -43,3 +43,7 @@ export PATH=~/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/mysql/
 DISABLE_AUTO_TITLE=true
 
 export EDITOR=vim
+export ACKRC="./.ackrc"
+
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+__rvm_project_rvmrc
