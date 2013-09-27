@@ -1,5 +1,5 @@
 [user]
-        name = John Richardson
+	name = John Richardson
         email = john@esparklearning.com
 [alias]
         co = checkout
@@ -26,6 +26,7 @@
         branch = auto
 [core]
         autocrlf = input
+	trustctime = false
 [merge]
         tool = kdiff3
 [merge "railsschema"]

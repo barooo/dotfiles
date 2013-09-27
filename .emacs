@@ -1,22 +1,45 @@
 (setq inhibit-start-screen t)
 (setq inhibit-splash-screen t)
 (tool-bar-mode -1)
+(when (window-system)
+  (menu-bar-mode -1)
+  (menu-bar-mode 1))
+
+
+(add-to-list 'load-path "~/.emacs.d/site-lisp/")
 
 ;; fix the PATH variable
+;; OLD VERSION
+;; (defun set-exec-path-from-shell-PATH ()
+;;   (let ((path-from-shell (shell-command-to-string "$SHELL -i -c 'echo $PATH'")))
+;;     (setenv "PATH" path-from-shell)
+;;     (setq exec-path (split-string path-from-shell path-separator))))
+
+;; (when window-system (set-exec-path-from-shell-PATH))
+
+;; NEW VERSION from http://stackoverflow.com/questions/2266905/emacs-is-ignoring-my-path-when-it-runs-a-compile-command
 (defun set-exec-path-from-shell-PATH ()
-  (let ((path-from-shell (shell-command-to-string "$SHELL -i -c 'echo $PATH'")))
+  (let ((path-from-shell 
+         (replace-regexp-in-string "[[:space:]\n]*$" "" 
+                                   (shell-command-to-string "$SHELL -l -c 'echo $PATH'"))))
     (setenv "PATH" path-from-shell)
     (setq exec-path (split-string path-from-shell path-separator))))
-
-(when window-system (set-exec-path-from-shell-PATH))
+(when (equal system-type 'darwin) (set-exec-path-from-shell-PATH))
 
 (setq default-frame-alist
       '((top . 75) (left . 150)
-        (width . 80) (height . 40)
+        (width . 132) (height . 55)
         (cursor-color . "white")
         (cursor-type . box)
 	(font . "-apple-Source_Code_Pro-medium-normal-normal-*-13-*-*-*-m-0-iso10646-1")))
 
+;; NEVER use tabs, ALWAYS use spaces.  Maybe there is a file somewhere where I want to use a tab,
+;; but if so I haven't seen it.
+(setq-default indent-tabs-mode nil)
+
+;; instead of foo.rb<2>, call a second buffer lib/foo.rb
+(require 'uniquify)
+(setq uniquify-buffer-name-style 'forward)
 
 (require 'ido)
 (ido-mode t)
@@ -48,14 +71,21 @@
 (require 'feature-mode)
 (add-to-list 'auto-mode-alist '("\.feature$" . feature-mode))
 (setq feature-use-rvm t)
-(setq feature-cucumber-command "bundle exec rake cucumber \"{feature}\" {options}")
+(setq feature-cucumber-command "bundle exec cucumber \"{feature}\" {options} --require features")
 
 ;; markdown mode
-(add-to-list 'load-path "~/.emacs.d/site-lisp/")
+
 (require 'markdown-mode)
 (add-to-list 'auto-mode-alist '("\\.text" . markdown-mode))
 (add-to-list 'auto-mode-alist '("\\.md" . markdown-mode))
 (add-to-list 'auto-mode-alist '("\\.mdown" . markdown-mode))
+
+
+(add-hook 'markdown-mode-hook
+          '(lambda ()
+             ;; set fill mode, set fill column to 80
+             (auto-fill-mode)
+             (set-fill-column 80)))
 
 ;; enable syntax checking in ruby.
 (require 'flymake)
@@ -91,7 +121,8 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(coffee-tab-width 2)
- '(custom-safe-themes (quote ("fc5fcb6f1f1c1bc01305694c59a1a861b008c534cae8d0e48e4d5e81ad718bc6" "1e7e097ec8cb1f8c3a912d7e1e0331caeed49fef6cff220be63bd2a6ba4cc365" "71b172ea4aad108801421cc5251edb6c792f3adbaecfa1c52e94e3d99634dee7" "293f58e2d131258eb256e15545ec48724f580dc47cab7dd08330ec61430ceff3" default))))
+ '(custom-safe-themes (quote ("fc5fcb6f1f1c1bc01305694c59a1a861b008c534cae8d0e48e4d5e81ad718bc6" "1e7e097ec8cb1f8c3a912d7e1e0331caeed49fef6cff220be63bd2a6ba4cc365" "71b172ea4aad108801421cc5251edb6c792f3adbaecfa1c52e94e3d99634dee7" "293f58e2d131258eb256e15545ec48724f580dc47cab7dd08330ec61430ceff3" default)))
+ '(org-agenda-files (quote ("~/Dropbox/idonethis.org"))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -100,7 +131,8 @@
  ;; If there is more than one, they won't work right.
  )
 
-;;(load-theme 'zenburn t)
+(if window-system
+    (load-theme 'zenburn t))
 
 (add-hook 'ruby-mode-hook
 	  (lambda()
@@ -110,7 +142,6 @@
 			   (untabify (point-min) (point-max))
 			   (delete-trailing-whitespace)
 			   )))
-	    (set (make-local-variable 'indent-tabs-mode) 'nil)
 	    (set (make-local-variable 'tab-width) 2)
 	    (imenu-add-to-menubar "IMENU")
 	    (define-key ruby-mode-map "\C-m" 'newline-and-indent)
@@ -119,6 +150,12 @@
 (setq ruby-deep-indent-paren nil)
 
 (require 'clojure-mode)
+(add-to-list 'auto-mode-alist '("\\.cljs" . clojure-mode))            
+(add-hook 'clojure-mode-hook
+	  (lambda()
+            (define-key clojure-mode-map "\C-m" 'newline-and-indent)
+	    (local-set-key "\r" 'newline-and-indent)))
+
 
 (setq autosave-dir "~/.emacs.d/autosaves/")
 ;; (make-directory autosave-dir)
@@ -164,6 +201,9 @@
 (require 'rainbow-delimiters)
 (add-hook 'clojure-mode-hook 'rainbow-delimiters-mode)
 (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode)
+
+;; c mode the way it should be
+(setq c-basic-offset 4)
 
 (defun google-it ()
   "Googles a query or region if any."
@@ -219,3 +259,9 @@
 (defalias 'ack-same 'ack-and-a-half-same)
 (defalias 'ack-find-file 'ack-and-a-half-find-file)
 (defalias 'ack-find-file-same 'ack-and-a-half-find-file-same)
+
+;;scss customization
+(add-hook 'scss-mode-hook
+          (lambda()
+            (setq css-indent-offset 2)
+            (setq scss-compile-at-save nil)))

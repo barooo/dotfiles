@@ -39,10 +39,10 @@ source $ZSH/oh-my-zsh.sh
 # Customize to your needs...
 
 source ~/.zaliases
-export PATH=~/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/mysql/bin:~/src/tools/arcanist/bin
+export PATH=~/bin:/usr/texbin:/usr/local/share/npm/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/mysql/bin:~/src/tools/arcanist/bin
 DISABLE_AUTO_TITLE=true
 
-export EDITOR=vim
+export ALTERNATE_EDITOR=emacs EDITOR=emacsclient VISUAL=emacsclient
 export ACKRC="./.ackrc"
 
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
