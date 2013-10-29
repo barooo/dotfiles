@@ -27,6 +27,7 @@
 [core]
         autocrlf = input
 	trustctime = false
+	excludesfile = /Users/john/.gitignore
 [merge]
         tool = kdiff3
 [merge "railsschema"]

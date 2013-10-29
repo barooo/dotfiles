@@ -44,6 +44,6 @@ DISABLE_AUTO_TITLE=true
 
 export ALTERNATE_EDITOR=emacs EDITOR=emacsclient VISUAL=emacsclient
 export ACKRC="./.ackrc"
+eval "$(rbenv init -)"
 
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
-__rvm_project_rvmrc
+export PATH="$HOME/.cask/bin:$PATH"
