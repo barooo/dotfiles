@@ -1,7 +1,8 @@
 (setq inhibit-start-screen t)
 (setq inhibit-splash-screen t)
 (tool-bar-mode -1)
-(unless (window-system)
+(if (window-system)
+    (menu-bar-mode 1)
   (menu-bar-mode -1))
 
 (require 'cask "~/.cask/cask.el")
@@ -29,8 +30,8 @@
 (when (equal system-type 'darwin) (set-exec-path-from-shell-PATH))
 
 (setq default-frame-alist
-      '((top . 75) (left . 150)
-        (width . 132) (height . 55)
+      '((top . 0) (left . 150)
+        (width . 132) (height . 50)
         (cursor-color . "white")
         (cursor-type . box)
 	(font . "-apple-Source_Code_Pro-medium-normal-normal-*-13-*-*-*-m-0-iso10646-1")))
@@ -52,6 +53,7 @@
 
 ;; rspec mode
 (setq rspec-use-rake-flag nil)
+(setq rspec-use-rake-when-possible nil)
 
 ;; per github page, zsh doesn't play nicely, so use bash instead.
 (defadvice rspec-compile (around rspec-compile-around)
@@ -213,6 +215,9 @@
 	  (lambda () (rinari-launch)))
 (add-to-list 'auto-mode-alist '("\\.html.erb" . web-mode))
 
+;;coffee-mode
+(add-to-list 'auto-mode-alist '("\\.coffee.erb" . coffee-mode))
+
 ;; automatically revert unchanged buffers when they change on disk (like with git)
 (global-auto-revert-mode 1)
 
@@ -230,3 +235,22 @@
 ;; pbcopy: https://github.com/wesen/emacs/blob/master/pbcopy.el
 (require 'pbcopy)
 (turn-on-pbcopy)
+
+
+
+;; ;; projectile configuration
+(require 'ag)
+(projectile-global-mode)
+(setq projectile-completion-system 'grizzl)
+(setq projectile-enable-caching t)
+(if window-system 
+    (global-set-key (kbd "s-t") 'projectile-find-file)
+  (global-set-key (kbd "M-t") 'projectile-find-file))
+
+(setq projectile-globally-ignored-directories
+      (append projectile-globally-ignored-directories '(".git" ".bundle" "vendor" "tmp" "log")))
+(setq projectile-globally-ignored-files
+      (append projectile-globally-ignored-files '("*.png" "*.jpg")))
+                                                        
+;; (setq fiplr-ignored-globs '((directories (".git" ".svn" ".bundle" "vendor" "tmp" "log"))
+;;                             (files ("*.jpg" "*.png" "*.zip" "*~"))))

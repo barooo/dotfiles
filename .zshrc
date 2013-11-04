@@ -47,3 +47,4 @@ export ACKRC="./.ackrc"
 eval "$(rbenv init -)"
 
 export PATH="$HOME/.cask/bin:$PATH"
+export PROMPT=' %{$fg[cyan]%}%c %{$fg_bold[blue]%}$(git_prompt_info) %(?.%{$fg_bold[green]%}✔  .%{$fg[yellow]%}(╯°□°）╯︵ ┻━┻  )%{$reset_color%}'
