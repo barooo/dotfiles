@@ -14,6 +14,7 @@
 (depends-on "grizzl")
 (depends-on "markdown-mode")
 (depends-on "pallet")
+(depends-on "powerline")
 (depends-on "projectile")
 (depends-on "rainbow-delimiters")
 (depends-on "rbenv")
