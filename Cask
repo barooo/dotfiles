@@ -1,6 +1,7 @@
 (source "melpa" "http://melpa.milkbox.net/packages/")
 
 (depends-on "ag")
+(depends-on "anti-zenburn-theme")
 (depends-on "auto-complete")
 (depends-on "cask")
 (depends-on "cider")
@@ -9,6 +10,7 @@
 (depends-on "dash")
 (depends-on "enh-ruby-mode")
 (depends-on "epl")
+(depends-on "exec-path-from-shell")
 (depends-on "f")
 (depends-on "feature-mode")
 (depends-on "grizzl")

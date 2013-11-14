@@ -24,17 +24,25 @@
 
 (if window-system
     (load-theme 'zenburn t))
+
 (require 'powerline)
 (powerline-default-theme)
 
 ;; from http://stackoverflow.com/questions/2266905/emacs-is-ignoring-my-path-when-it-runs-a-compile-command
-(defun set-exec-path-from-shell-PATH ()
-  (let ((path-from-shell 
-         (replace-regexp-in-string "[[:space:]\n]*$" "" 
-                                   (shell-command-to-string "$SHELL -l -c 'echo $PATH'"))))
-    (setenv "PATH" path-from-shell)
-    (setq exec-path (split-string path-from-shell path-separator))))
-(when (equal system-type 'darwin) (set-exec-path-from-shell-PATH))
+;; (defun set-exec-path-from-shell-PATH ()
+;;   (let ((path-from-shell 
+;;          (replace-regexp-in-string "[[:space:]\n]*$" "" 
+;;                                    (shell-command-to-string "$SHELL -l -c 'echo $PATH'"))))
+;;     (setenv "PATH" path-from-shell)
+;;     (setq exec-path (split-string path-from-shell path-separator))))
+;; (when (equal system-type 'darwin) (set-exec-path-from-shell-PATH))
+
+(when (memq window-system '(mac ns))
+  (exec-path-from-shell-initialize))
+
+;; this will stop (most) of the warnings about terminal capabilities (e.g.,
+;; from the rails console with inf-ruby).
+(setenv "PAGER" (executable-find "cat"))
 
 ;; for guimacs, size and locate the window... er, frame?
 (setq default-frame-alist
@@ -96,7 +104,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(coffee-tab-width 2)
- '(custom-safe-themes (quote ("dc6c0b236bb09603babadd87329aa857e286ee36715811519d4bfe6278ee4367" "fc5fcb6f1f1c1bc01305694c59a1a861b008c534cae8d0e48e4d5e81ad718bc6" "1e7e097ec8cb1f8c3a912d7e1e0331caeed49fef6cff220be63bd2a6ba4cc365" "71b172ea4aad108801421cc5251edb6c792f3adbaecfa1c52e94e3d99634dee7" "293f58e2d131258eb256e15545ec48724f580dc47cab7dd08330ec61430ceff3" default)))
+ '(custom-safe-themes (quote ("d63e19a84fef5fa0341fa68814200749408ad4a321b6d9f30efc117aeaf68a2e" "26ccfd6671648911fedb90fa8279edf66baefb15e55e3db7d0849969f53b8d5d" "7fa9dc3948765d7cf3d7a289e40039c2c64abf0fad5c616453b263b601532493" "dc6c0b236bb09603babadd87329aa857e286ee36715811519d4bfe6278ee4367" "fc5fcb6f1f1c1bc01305694c59a1a861b008c534cae8d0e48e4d5e81ad718bc6" "1e7e097ec8cb1f8c3a912d7e1e0331caeed49fef6cff220be63bd2a6ba4cc365" "71b172ea4aad108801421cc5251edb6c792f3adbaecfa1c52e94e3d99634dee7" "293f58e2d131258eb256e15545ec48724f580dc47cab7dd08330ec61430ceff3" default)))
  '(org-agenda-files (quote ("~/Dropbox/orgs/grocery_list.org" "~/Dropbox/orgs/agenda.org"))))
 
 (custom-set-faces
@@ -114,7 +122,10 @@
 (setq ac-ignore-case nil)
 (add-to-list 'ac-modes 'enh-ruby-mode)
 (add-to-list 'ac-modes 'web-mode)
+(add-to-list 'ac-sources 'ac-source-robe)
 
+(autoload 'rbenv "rbenv")
+(autoload 'global-rbenv-mode "rbenv")
 
 ;; enhanced ruby mode.  Setup filetypes, indentation prefs, etc.
 (autoload 'enh-ruby-mode "enh-ruby-mode" "Major mode for ruby files" t)
@@ -145,8 +156,8 @@
 (smartparens-global-mode)
 (show-smartparens-global-mode t)
 (sp-with-modes '(web-mode)
-               (sp-local-pair "<" ">")
-               (sp-local-pair "<%" "%>"))
+  (sp-local-pair "<" ">")
+  (sp-local-pair "<%" "%>"))
 
 ;; make sure clojure mode is turned on for clojurescript, and
 ;; make sure it indents on newlines.
@@ -213,8 +224,13 @@
 
 ;; XF86(Forward|Back) are used for cycling windows, but WTF is an XF86Forward
 ;; key?
-(global-set-key (kbd "M-<up>") 'next-buffer)
-(global-set-key (kbd "M-<down>") 'previous-buffer)
+(when (window-system)
+  (global-set-key (read-kbd-macro "M-<up>") 'next-multiframe-window)
+  (global-set-key (read-kbd-macro "M-<down>") 'previous-multiframe-window))
+
+(unless (window-system)
+  (global-set-key (read-kbd-macro "ESC <up>") 'next-multiframe-window)
+  (global-set-key (read-kbd-macro "ESC <down>") 'previous-multiframe-window))
 
 ;;web mode (replaced rhtml-mode?)
 (add-hook 'web-mode-hook
