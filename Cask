@@ -8,7 +8,6 @@
 (depends-on "clojure-mode")
 (depends-on "coffee-mode")
 (depends-on "dash")
-(depends-on "enh-ruby-mode")
 (depends-on "epl")
 (depends-on "exec-path-from-shell")
 (depends-on "f")

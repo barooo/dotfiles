@@ -127,29 +127,69 @@
 (autoload 'rbenv "rbenv")
 (autoload 'global-rbenv-mode "rbenv")
 
-;; enhanced ruby mode.  Setup filetypes, indentation prefs, etc.
-(autoload 'enh-ruby-mode "enh-ruby-mode" "Major mode for ruby files" t)
-(add-to-list 'auto-mode-alist '("\\.rb$" . enh-ruby-mode))
-(add-to-list 'auto-mode-alist '("\\.rake$" . enh-ruby-mode))
-(add-to-list 'auto-mode-alist '("Rakefile$" . enh-ruby-mode))
-(add-to-list 'auto-mode-alist '("\\.gemspec$" . enh-ruby-mode))
-(add-to-list 'auto-mode-alist '("\\.ru$" . enh-ruby-mode))
-(add-to-list 'auto-mode-alist '("Gemfile$" . enh-ruby-mode))
-(add-to-list 'interpreter-mode-alist '("ruby" . enh-ruby-mode))
+;; enable syntax checking in ruby.
+(require 'flymake)
+(defun flymake-ruby-init ()
+  (let* ((temp-file   (flymake-init-create-temp-buffer-copy
+                       'flymake-create-temp-inplace))
+	 (local-file  (file-relative-name
+                       temp-file
+                       (file-name-directory buffer-file-name))))
+    (list "ruby" (list "-c" local-file))))
 
-(add-hook 'enh-ruby-mode-hook
+(push '(".+\\.rb$" flymake-ruby-init) flymake-allowed-file-name-masks)
+(push '("Rakefile$" flymake-ruby-init) flymake-allowed-file-name-masks)
+
+(push '("^\\(.*\\):\\([0-9]+\\): \\(.*\\)$" 1 2 nil 3) flymake-err-line-patterns)
+
+(add-hook 'ruby-mode-hook
+          '(lambda ()
+
+	     ;; Don't want flymake mode for ruby regions in rhtml files and also on read only files
+	     (if (and (not (null buffer-file-name)) (file-writable-p buffer-file-name))
+		 (flymake-mode))
+	     ))
+
+(add-hook 'ruby-mode-hook
 	  (lambda()
 	    (add-hook 'local-write-file-hooks
 		      '(lambda()
 			 (save-excursion
 			   (untabify (point-min) (point-max))
-			   (delete-trailing-whitespace))))
-	    (define-key enh-ruby-mode-map "\C-m" 'newline-and-indent)
-	    (local-set-key "\r" 'newline-and-indent)
-            (robe-mode)
-            (rbenv-use-corresponding)))
+			   (delete-trailing-whitespace)
+			   )))
+	    (set (make-local-variable 'tab-width) 2)
+	    (imenu-add-to-menubar "IMENU")
+	    (define-key ruby-mode-map "\C-m" 'newline-and-indent)
+	    (local-set-key "\r" 'newline-and-indent)))
 
-(setq enh-ruby-deep-indent-paren nil)
+(setq ruby-deep-indent-paren nil)
+
+;; ;; enhanced ruby mode.  Setup filetypes, indentation prefs, etc.
+;; (autoload 'enh-ruby-mode "enh-ruby-mode" "Major mode for ruby files" t)
+;; (add-to-list 'auto-mode-alist '("\\.rb$" . enh-ruby-mode))
+;; (add-to-list 'auto-mode-alist '("\\.rake$" . enh-ruby-mode))
+;; (add-to-list 'auto-mode-alist '("Rakefile$" . enh-ruby-mode))
+;; (add-to-list 'auto-mode-alist '("\\.gemspec$" . enh-ruby-mode))
+;; (add-to-list 'auto-mode-alist '("\\.ru$" . enh-ruby-mode))
+;; (add-to-list 'auto-mode-alist '("Gemfile$" . enh-ruby-mode))
+;; (add-to-list 'interpreter-mode-alist '("ruby" . enh-ruby-mode))
+
+;; (add-hook 'enh-ruby-mode-hook
+;; 	  (lambda()
+;; 	    (add-hook 'local-write-file-hooks
+;; 		      '(lambda()
+;; 			 (save-excursion
+;; 			   (untabify (point-min) (point-max))
+;; 			   (delete-trailing-whitespace))))
+;; 	    (define-key enh-ruby-mode-map "\C-m" 'newline-and-indent)
+;; 	    (local-set-key "\r" 'newline-and-indent)
+;;             (robe-mode)
+;;             (rbenv-use-corresponding)))
+
+;; (setq enh-ruby-deep-indent-paren nil)
+
+
 
 ;;smartparens, like electric but smarter.
 (require 'smartparens-config)
