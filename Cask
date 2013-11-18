@@ -15,6 +15,7 @@
 (depends-on "feature-mode")
 (depends-on "grizzl")
 (depends-on "markdown-mode")
+(depends-on "nyan-mode")
 (depends-on "pallet")
 (depends-on "powerline")
 (depends-on "projectile")

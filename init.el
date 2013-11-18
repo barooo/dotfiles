@@ -25,8 +25,8 @@
 (if window-system
     (load-theme 'zenburn t))
 
-(require 'powerline)
-(powerline-default-theme)
+;; (require 'powerline)
+;; (powerline-default-theme)
 
 ;; from http://stackoverflow.com/questions/2266905/emacs-is-ignoring-my-path-when-it-runs-a-compile-command
 ;; (defun set-exec-path-from-shell-PATH ()
@@ -136,6 +136,7 @@
 (add-to-list 'auto-mode-alist '("\\.ru$" . enh-ruby-mode))
 (add-to-list 'auto-mode-alist '("Gemfile$" . enh-ruby-mode))
 (add-to-list 'interpreter-mode-alist '("ruby" . enh-ruby-mode))
+
 (add-hook 'enh-ruby-mode-hook
 	  (lambda()
 	    (add-hook 'local-write-file-hooks
@@ -224,11 +225,10 @@
 
 ;; XF86(Forward|Back) are used for cycling windows, but WTF is an XF86Forward
 ;; key?
-(when (window-system)
-  (global-set-key (read-kbd-macro "M-<up>") 'next-multiframe-window)
-  (global-set-key (read-kbd-macro "M-<down>") 'previous-multiframe-window))
-
-(unless (window-system)
+(if (window-system)
+    (progn 
+      (global-set-key (read-kbd-macro "M-<up>") 'next-multiframe-window)
+      (global-set-key (read-kbd-macro "M-<down>") 'previous-multiframe-window))
   (global-set-key (read-kbd-macro "ESC <up>") 'next-multiframe-window)
   (global-set-key (read-kbd-macro "ESC <down>") 'previous-multiframe-window))
 
