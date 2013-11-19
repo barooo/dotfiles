@@ -120,7 +120,7 @@
 (add-to-list 'ac-dictionary-directories "~/.emacs.d/.cask/24.3.1/elpa/auto-complete-20130724.1750/dict")
 (ac-config-default)
 (setq ac-ignore-case nil)
-(add-to-list 'ac-modes 'enh-ruby-mode)
+(add-to-list 'ac-modes 'ruby-mode)
 (add-to-list 'ac-modes 'web-mode)
 (add-to-list 'ac-sources 'ac-source-robe)
 
@@ -144,24 +144,20 @@
 
 (add-hook 'ruby-mode-hook
           '(lambda ()
-
-	     ;; Don't want flymake mode for ruby regions in rhtml files and also on read only files
+ 	     ;; Don't want flymake mode for ruby regions in rhtml files and also on read only files
 	     (if (and (not (null buffer-file-name)) (file-writable-p buffer-file-name))
 		 (flymake-mode))
-	     ))
-
-(add-hook 'ruby-mode-hook
-	  (lambda()
-	    (add-hook 'local-write-file-hooks
-		      '(lambda()
-			 (save-excursion
-			   (untabify (point-min) (point-max))
-			   (delete-trailing-whitespace)
-			   )))
-	    (set (make-local-variable 'tab-width) 2)
-	    (imenu-add-to-menubar "IMENU")
-	    (define-key ruby-mode-map "\C-m" 'newline-and-indent)
-	    (local-set-key "\r" 'newline-and-indent)))
+	     
+             (add-hook 'local-write-file-hooks
+                       '(lambda()
+                          (save-excursion
+                            (untabify (point-min) (point-max))
+                            (delete-trailing-whitespace)
+                            )))
+             (set (make-local-variable 'tab-width) 2)
+             (imenu-add-to-menubar "IMENU")
+             (define-key ruby-mode-map "\C-m" 'newline-and-indent)
+             (local-set-key "\r" 'newline-and-indent)))
 
 (setq ruby-deep-indent-paren nil)
 
