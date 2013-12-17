@@ -25,8 +25,9 @@
 (if window-system
     (load-theme 'zenburn t))
 
-;; (require 'powerline)
-;; (powerline-default-theme)
+(require 'powerline)
+(if (window-system)
+    (powerline-default-theme))
 
 ;; from http://stackoverflow.com/questions/2266905/emacs-is-ignoring-my-path-when-it-runs-a-compile-command
 ;; (defun set-exec-path-from-shell-PATH ()
@@ -307,3 +308,6 @@
       (append projectile-globally-ignored-directories '(".git" ".bundle" "vendor" "tmp" "log")))
 (setq projectile-globally-ignored-files
       (append projectile-globally-ignored-files '("*.png" "*.jpg")))
+
+;; deft
+(setq deft-use-filename-as-title t)
