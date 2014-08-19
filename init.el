@@ -10,7 +10,7 @@
 (column-number-mode)
 
 ;; set up package management.
-(require 'cask "~/.cask/cask.el")
+(require 'cask  "/usr/local/Cellar/cask/0.6.0/cask.el")
 (cask-initialize)
 (require 'pallet)
 
@@ -25,9 +25,10 @@
 (if window-system
     (load-theme 'zenburn t))
 
-(require 'powerline)
-(if (window-system)
-    (powerline-default-theme))
+;; this looks somewhat purty, but seems to be dysfunctional.
+;; (require 'powerline)
+;; (if (window-system)
+;;     (powerline-default-theme))
 
 ;; from http://stackoverflow.com/questions/2266905/emacs-is-ignoring-my-path-when-it-runs-a-compile-command
 ;; (defun set-exec-path-from-shell-PATH ()
@@ -40,6 +41,8 @@
 
 (when (memq window-system '(mac ns))
   (exec-path-from-shell-initialize))
+
+
 
 ;; this will stop (most) of the warnings about terminal capabilities (e.g.,
 ;; from the rails console with inf-ruby).
@@ -126,6 +129,7 @@
 (add-to-list 'ac-sources 'ac-source-robe)
 
 (autoload 'rbenv "rbenv")
+(setq rbenv-executable "/usr/local/bin/rbenv")
 (autoload 'global-rbenv-mode "rbenv")
 
 ;; enable syntax checking in ruby.
@@ -311,3 +315,9 @@
 
 ;; deft
 (setq deft-use-filename-as-title t)
+(setq deft-text-mode 'org-mode)
+
+(require 'slime)
+(add-hook 'lisp-mode-hook (lambda () (slime-mode t)))
+(add-hook 'inferior-lisp-mode-hook (lambda () (inferior-slime-mode t)))
+(setq inferior-lisp-program "clisp") 
