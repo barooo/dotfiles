@@ -61,7 +61,9 @@
 (setq-default indent-tabs-mode nil)
 
 ;; fill at 78 for almost everything.
-(setq-default fill-column 78)
+(add-hook 'text-mode-hook 'turn-on-auto-fill)
+(add-hook 'text-mode-hook
+          '(lambda() (set-fill-column 78)))
 
 ;; instead of foo.rb<2>, call a second buffer lib/foo.rb
 (require 'uniquify)
@@ -321,3 +323,10 @@
 (add-hook 'lisp-mode-hook (lambda () (slime-mode t)))
 (add-hook 'inferior-lisp-mode-hook (lambda () (inferior-slime-mode t)))
 (setq inferior-lisp-program "clisp") 
+
+;; get rid of all Projectile ag buffers
+(defun kill-all-ag-buffers ()
+  (interactive)
+  (dolist (b (buffer-list))
+    (if (string-match "\*ag search" (buffer-name b))
+        (kill-buffer b))))
