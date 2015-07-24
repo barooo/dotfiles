@@ -1,5 +1,6 @@
 (source marmalade)
 (source melpa)
+(source gnu)
 
 (depends-on "ag")
 (depends-on "anti-zenburn-theme")
