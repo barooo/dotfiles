@@ -10,7 +10,7 @@
 (column-number-mode)
 
 ;; set up package management.
-(require 'cask  "/usr/local/Cellar/cask/0.6.0/cask.el")
+(require 'cask  "/home/vagrant/.cask/cask.el")
 (cask-initialize)
 (require 'pallet)
 
@@ -60,10 +60,8 @@
 ;; want to use a tab, but if so I haven't seen it.
 (setq-default indent-tabs-mode nil)
 
-;; fill at 78 for almost everything.
+(set-fill-column 80)
 (add-hook 'text-mode-hook 'turn-on-auto-fill)
-(add-hook 'text-mode-hook
-          '(lambda() (set-fill-column 78)))
 
 ;; instead of foo.rb<2>, call a second buffer lib/foo.rb
 (require 'uniquify)
@@ -78,12 +76,14 @@
 (setq rspec-use-rake-flag nil)
 (setq rspec-use-rake-when-possible nil)
 
-;; per github page, zsh doesn't play nicely with rspec mode, so use bash
-;; instead.
 (defadvice rspec-compile (around rspec-compile-around)
-  "Use BASH shell for running the specs because of ZSH issues."
-  (let ((shell-file-name "/bin/bash"))
-    ad-do-it))
+  (defun rspec-zeus-file-path ()
+    (or (getenv "ZEUSSOCK")
+        (concat (rspec-project-root) ".zeus.sock")))
+  (defun rspec-zeus-p ()
+    (and rspec-use-zeus-when-possible
+         (file-exists-p (rspec-zeus-file-path))))
+  ad-do-it)
 (ad-activate 'rspec-compile)
 
 (setq feature-cucumber-command "CUCUMBER_OPTS=\"{options}\" bundle exec cucumber {feature} --require features")
@@ -149,6 +149,7 @@
 
 (push '("^\\(.*\\):\\([0-9]+\\): \\(.*\\)$" 1 2 nil 3) flymake-err-line-patterns)
 
+(setq ruby-insert-encoding-magic-comment nil)
 (add-hook 'ruby-mode-hook
           '(lambda ()
  	     ;; Don't want flymake mode for ruby regions in rhtml files and also on read only files
@@ -168,32 +169,6 @@
 
 (setq ruby-deep-indent-paren nil)
 
-;; ;; enhanced ruby mode.  Setup filetypes, indentation prefs, etc.
-;; (autoload 'enh-ruby-mode "enh-ruby-mode" "Major mode for ruby files" t)
-;; (add-to-list 'auto-mode-alist '("\\.rb$" . enh-ruby-mode))
-;; (add-to-list 'auto-mode-alist '("\\.rake$" . enh-ruby-mode))
-;; (add-to-list 'auto-mode-alist '("Rakefile$" . enh-ruby-mode))
-;; (add-to-list 'auto-mode-alist '("\\.gemspec$" . enh-ruby-mode))
-;; (add-to-list 'auto-mode-alist '("\\.ru$" . enh-ruby-mode))
-;; (add-to-list 'auto-mode-alist '("Gemfile$" . enh-ruby-mode))
-;; (add-to-list 'interpreter-mode-alist '("ruby" . enh-ruby-mode))
-
-;; (add-hook 'enh-ruby-mode-hook
-;; 	  (lambda()
-;; 	    (add-hook 'local-write-file-hooks
-;; 		      '(lambda()
-;; 			 (save-excursion
-;; 			   (untabify (point-min) (point-max))
-;; 			   (delete-trailing-whitespace))))
-;; 	    (define-key enh-ruby-mode-map "\C-m" 'newline-and-indent)
-;; 	    (local-set-key "\r" 'newline-and-indent)
-;;             (robe-mode)
-;;             (rbenv-use-corresponding)))
-
-;; (setq enh-ruby-deep-indent-paren nil)
-
-
-
 ;;smartparens, like electric but smarter.
 (require 'smartparens-config)
 (require 'smartparens-ruby)
@@ -211,6 +186,11 @@
 	  (lambda()
             (define-key clojure-mode-map "\C-m" 'newline-and-indent)
 	    (local-set-key "\r" 'newline-and-indent)))
+
+;;yavascript stuff
+(setq js-indent-level 2)
+(add-to-list 'auto-mode-alist '("\\.js.es6" . javascript-mode))
+(add-to-list 'auto-mode-alist '("\\.es6" . javascript-mode))
 
 ;; autosaves should go in one place, not all the places.
 (setq autosave-dir "~/.emacs.d/autosaves/")
@@ -276,9 +256,24 @@
   (global-set-key (read-kbd-macro "ESC <down>") 'previous-multiframe-window))
 
 ;;web mode (replaced rhtml-mode?)
-(add-hook 'web-mode-hook
-	  (lambda () (rinari-launch)))
+(setq web-mode-markup-indent-offset 2)
+(setq web-mode-css-indent-offset 2)
+(setq web-mode-code-indent-offset 2)
+
 (add-to-list 'auto-mode-alist '("\\.html.erb" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.jsx" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.es6" . web-mode))
+
+(setq web-mode-content-types-alist
+      '(("jsx" . "\\.js[x]?\\'")
+        ("jsx" . "\\.es6")))
+
+(defadvice web-mode-highlight-part (around tweak-jsx activate)
+  (if (equal web-mode-content-type "jsx")
+      (let ((web-mode-enable-part-face nil))
+        ad-do-it)
+    ad-do-it))
+
 
 ;;coffee-mode
 (add-to-list 'auto-mode-alist '("\\.coffee.erb" . coffee-mode))
@@ -311,7 +306,12 @@
 
 ;; this is supposed to just work, but it doesn't.
 (setq projectile-globally-ignored-directories
-      (append projectile-globally-ignored-directories '(".git" ".bundle" "vendor" "tmp" "log")))
+      (append projectile-globally-ignored-directories '(".git"
+                                                        ".bundle"
+                                                        "vendor"
+                                                        "tmp"
+                                                        ".arcanist-extensions"
+                                                        "log")))
 (setq projectile-globally-ignored-files
       (append projectile-globally-ignored-files '("*.png" "*.jpg")))
 
@@ -330,3 +330,14 @@
   (dolist (b (buffer-list))
     (if (string-match "\*ag search" (buffer-name b))
         (kill-buffer b))))
+
+(setq linum-format "%d ")
+
+(setq evil-want-C-u-scroll t)
+(setq evil-toggle-key "C-M-z")
+
+(require 'evil)
+(evil-mode 1)
+
+(require `evil-commentary)
+(evil-commentary-mode)
