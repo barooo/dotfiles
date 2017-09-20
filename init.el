@@ -13,6 +13,7 @@
 (require 'cask  "/home/vagrant/.cask/cask.el")
 (cask-initialize)
 (require 'pallet)
+(pallet-mode t)
 
 (require 'package)
 (add-to-list 'package-archives 
@@ -76,15 +77,24 @@
 (setq rspec-use-rake-flag nil)
 (setq rspec-use-rake-when-possible nil)
 
-(defadvice rspec-compile (around rspec-compile-around)
-  (defun rspec-zeus-file-path ()
-    (or (getenv "ZEUSSOCK")
-        (concat (rspec-project-root) ".zeus.sock")))
-  (defun rspec-zeus-p ()
-    (and rspec-use-zeus-when-possible
-         (file-exists-p (rspec-zeus-file-path))))
-  ad-do-it)
-(ad-activate 'rspec-compile)
+;; (defadvice rspec-compile (around rspec-compile-around)
+;;   (defun rspec-runner ()
+;;     "Return command line to run rspec."
+;;     (let ((bundle-command (if (rspec-bundle-p) "bundle exec " ""))
+;;           (zeus-command (if (rspec-zeus-p) "zeus " nil))
+;;           (spring-command (if (rspec-spring-p) "spring " nil)))
+;;       (concat (or zeus-command spring-command bundle-command)
+;;               (if (rspec-rake-p)
+;;                   (concat rspec-rake-command " spec")
+;;                 rspec-spec-command))))
+;;   (defun rspec-zeus-file-path ()
+;;     (or (getenv "ZEUSSOCK")
+;;         (concat (rspec-project-root) ".zeus.sock")))
+;;   (defun rspec-zeus-p ()
+;;     (and rspec-use-zeus-when-possible
+;;          (file-exists-p (rspec-zeus-file-path))))
+;;   ad-do-it)
+;; (ad-activate 'rspec-compile)
 
 (setq feature-cucumber-command "CUCUMBER_OPTS=\"{options}\" bundle exec cucumber {feature} --require features")
 
@@ -110,8 +120,15 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(coffee-tab-width 2)
- '(custom-safe-themes (quote ("d63e19a84fef5fa0341fa68814200749408ad4a321b6d9f30efc117aeaf68a2e" "26ccfd6671648911fedb90fa8279edf66baefb15e55e3db7d0849969f53b8d5d" "7fa9dc3948765d7cf3d7a289e40039c2c64abf0fad5c616453b263b601532493" "dc6c0b236bb09603babadd87329aa857e286ee36715811519d4bfe6278ee4367" "fc5fcb6f1f1c1bc01305694c59a1a861b008c534cae8d0e48e4d5e81ad718bc6" "1e7e097ec8cb1f8c3a912d7e1e0331caeed49fef6cff220be63bd2a6ba4cc365" "71b172ea4aad108801421cc5251edb6c792f3adbaecfa1c52e94e3d99634dee7" "293f58e2d131258eb256e15545ec48724f580dc47cab7dd08330ec61430ceff3" default)))
- '(org-agenda-files (quote ("~/Dropbox/orgs/grocery_list.org" "~/Dropbox/orgs/agenda.org"))))
+ '(custom-safe-themes
+   (quote
+    ("d63e19a84fef5fa0341fa68814200749408ad4a321b6d9f30efc117aeaf68a2e" "26ccfd6671648911fedb90fa8279edf66baefb15e55e3db7d0849969f53b8d5d" "7fa9dc3948765d7cf3d7a289e40039c2c64abf0fad5c616453b263b601532493" "dc6c0b236bb09603babadd87329aa857e286ee36715811519d4bfe6278ee4367" "fc5fcb6f1f1c1bc01305694c59a1a861b008c534cae8d0e48e4d5e81ad718bc6" "1e7e097ec8cb1f8c3a912d7e1e0331caeed49fef6cff220be63bd2a6ba4cc365" "71b172ea4aad108801421cc5251edb6c792f3adbaecfa1c52e94e3d99634dee7" "293f58e2d131258eb256e15545ec48724f580dc47cab7dd08330ec61430ceff3" default)))
+ '(org-agenda-files
+   (quote
+    ("~/Dropbox/orgs/grocery_list.org" "~/Dropbox/orgs/agenda.org")))
+ '(package-selected-packages
+   (quote
+    (pomidor evil-leader company-web elm-mode zenburn-theme yasnippet web-mode smartparens slime scss-mode rspec-mode robe rbenv rainbow-delimiters projectile powerline pallet nyan-mode multi-term markdown-mode magit grizzl feature-mode exec-path-from-shell evil-matchit deft company coffee-mode clojure-mode auto-complete anti-zenburn-theme ag))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -122,13 +139,20 @@
 
 
 ;; auto complete preferences, and turn on autocomplete for ruby, coffee, etc.
-(require 'auto-complete-config)
-(add-to-list 'ac-dictionary-directories "~/.emacs.d/.cask/24.3.1/elpa/auto-complete-20130724.1750/dict")
-(ac-config-default)
-(setq ac-ignore-case nil)
-(add-to-list 'ac-modes 'ruby-mode)
-(add-to-list 'ac-modes 'web-mode)
-(add-to-list 'ac-sources 'ac-source-robe)
+;; (require 'auto-complete-config)
+;; (add-to-list 'ac-dictionary-directories "~/.emacs.d/.cask/25.1/elpa/auto-complete-20170124.1845/dict")
+;; (ac-config-default)
+;; (setq ac-ignore-case nil)
+;; (add-to-list 'ac-modes 'ruby-mode)
+;; (add-to-list 'ac-modes 'web-mode)
+;; (add-to-list 'ac-sources 'ac-source-robe)
+
+(with-eval-after-load 'company
+  (add-to-list 'company-backends 'company-robe)
+  (add-to-list 'company-backends 'company-elm)
+  (add-to-list 'company-backends 'company-web-html))
+(add-hook 'after-init-hook 'global-company-mode)
+
 
 (autoload 'rbenv "rbenv")
 (setq rbenv-executable "/usr/local/bin/rbenv")
@@ -166,8 +190,8 @@
              (imenu-add-to-menubar "IMENU")
              (define-key ruby-mode-map "\C-m" 'newline-and-indent)
              (local-set-key "\r" 'newline-and-indent)))
-
 (setq ruby-deep-indent-paren nil)
+(add-hook 'ruby-mode-hook 'robe-mode)
 
 ;;smartparens, like electric but smarter.
 (require 'smartparens-config)
@@ -192,13 +216,15 @@
 (add-to-list 'auto-mode-alist '("\\.js.es6" . javascript-mode))
 (add-to-list 'auto-mode-alist '("\\.es6" . javascript-mode))
 
-;; autosaves should go in one place, not all the places.
-(setq autosave-dir "~/.emacs.d/autosaves/")
-;; (make-directory autosave-dir)
+;; autosave file locations
+(setq create-lockfiles nil) ;;this can't be moved, and breaks elm compilation.
 (setq backup-directory-alist
-      `((".*" . ,autosave-dir)))
+      `((".*" . ,temporary-file-directory)))
 (setq auto-save-file-name-transforms
-      `((".*" ,autosave-dir t)))
+      `((".*" ,temporary-file-directory t)))
+(setq undo-tree-history-directory-alist
+      `((".*" . ,temporary-file-directory)))
+(setq undo-tree-auto-save-history t)
 
 ;; STOP. THE. DAMN. BEEPING.
 (setq ring-bell-function 
@@ -262,6 +288,7 @@
 
 (add-to-list 'auto-mode-alist '("\\.html.erb" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.jsx" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.js" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.es6" . web-mode))
 
 (setq web-mode-content-types-alist
@@ -297,6 +324,8 @@
 
 ;; projectile configuration
 (require 'ag)
+(setq ag-highlight-search t)
+
 (projectile-global-mode)
 (setq projectile-completion-system 'grizzl)
 (setq projectile-enable-caching t)
@@ -317,7 +346,12 @@
 
 ;; deft
 (setq deft-use-filename-as-title t)
+(setq deft-extensions '("org"))
+(setq deft-default-extension "org")
 (setq deft-text-mode 'org-mode)
+(setq deft-use-filename-as-title t)
+(setq deft-use-filter-string-for-filename t)
+;; (setq deft-auto-save-interval 0)
 
 (require 'slime)
 (add-hook 'lisp-mode-hook (lambda () (slime-mode t)))
@@ -333,11 +367,17 @@
 
 (setq linum-format "%d ")
 
+(setq elm-indent-offset 2)
+(setq elm-format-on-save t) ;;off for now, 4 space indents.
+
 (setq evil-want-C-u-scroll t)
-(setq evil-toggle-key "C-M-z")
-
 (require 'evil)
+(evil-select-search-module 'evil-search-module 'evil-search)
 (evil-mode 1)
+(require 'evil-leader)
+(global-evil-leader-mode)
+(evil-leader/set-leader ",")
+(evil-leader/set-key
+ "t" 'projectile-find-file)
 
-(require `evil-commentary)
-(evil-commentary-mode)
+(require 'pomidor)
